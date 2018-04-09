@@ -8,7 +8,7 @@ class Config:
     SECRET_KEY = os.environ.get('SECRET_KEY') or 'hard to guess string'
     FLASKY_MAIL_SUBJECT_PREFIX = '[Flasky]'
     FLASKY_MAIL_SENDER = 'Admin_cuiyihao <905073484@qq.com>'
-    FLASKY_ADMIN = os.environ.get('FLASKY_ADMIN','905073484@qq.com')
+    FLASKY_ADMIN = os.environ.get('FLASKY_ADMIN','3354929465@qq.com')
     SQLALCHEMY_COMMIT_ON_TEARDOWN = True
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
