@@ -4,7 +4,7 @@
 from flask import render_template,session,redirect,url_for,abort,flash,current_app,request,make_response
 from flask_login import login_required, current_user
 from . import main
-from .forms import NameForm,EditProfileForm,EditProfileAdminForm,PostForm,CommentForm
+from .forms import NameForm,EditProfileForm,EditProfileAdminForm,PostForm,CommentForm,ReserchFrom
 from .. import db
 from ..models import Role,User,Post,Permission,Comment
 from ..email import send_email
@@ -33,6 +33,13 @@ def index():
     return render_template('index.html',
             form=form,posts=posts,show_followed=show_followed,pagination=pagination)
 
+@main.route('/reserch',methods=['GET', 'POST'])
+def reserch():
+    form = ReserchFrom()
+    if form.validate_on_submit():
+        username = form.username.data
+        return redirect(url_for('.user', username=username))
+    return render_template('reserch.html', form=form)
 
 @main.route('/user/<username>')
 def user(username):

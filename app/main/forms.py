@@ -9,6 +9,14 @@ from wtforms import ValidationError
 from flask_pagedown.fields import PageDownField
 from ..models import Role, User
 
+class ReserchFrom(FlaskForm):
+    username = StringField('Username', validators=[
+        DataRequired(), Length(1, 64),
+        Regexp('^[A-Za-z][A-Za-z0-9_.]*$', 0,
+               'Usernames must have only letters, numbers, dots or '
+               'underscores')])
+    submit = SubmitField('Submit')
+
 class NameForm(FlaskForm):
     name = StringField('What is your name?',validators=[DataRequired()])
     submit = SubmitField('Submit')
