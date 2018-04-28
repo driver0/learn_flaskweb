@@ -1,0 +1,70 @@
+1.	flask web的程序结构中，在导入构造文件中的某个函数时，其默认是其所在目录的名字，不必写构造文件的名字；同级目录可直接用当前目录符号“.”代替即可
+2.	数据库老出现操作错误：把数据库删了db.drop_all()之后再创建了一个新的db.create_all()之后试了试就行了
+3.	添加新用户邮件没有发送：
+（1）	邮箱服务器拼错
+（2）	后续问题重启后恢复正常
+4.	p87:问题：实例化的用户模型无法提交
+解决：因为书上前面测试密码散列功能时已经提交过了相同例程，所以数据库中已经存在了相同的密码。将数据库删除，重新建立就行了。
+5.	p90：在进入shell交互环境时出现错误：SyntaxError: 'return' outside function
+解决：说明return 没有缩进到函数内部，将return缩进到函数内部就行。
+6.	p89:/auth/register请求没有响应提示找不到register.html 模板找不到base.html
+解决：复制一份login.html的模板进行改写就好了。
+7.	问题：出现错误：SyntaxError: EOL while scanning string literal
+（1）	这个异常造成的原因是字符串，引号没有成对出现，也就是类似下面的情况
+（2）	python中字符串的最后一个字符是斜杠会导致出错：SyntaxError: EOL while scanning string literal
+8.	问题：[IOErrno 104] Connection reset by peer
+9.	问题：在模型里的Role模型中添加了两个属性，后再python shell中不能对模型Role进行相关的操作，例如：Role.insert_roles()和Role.query_all()，会报一堆错误。
+原因：修改完数据库模型后，要更新数据库。
+解决：数据库模型改变后，没有创建对应的迁移脚本，更没有使用更新函数upgrade函数更新数据库。
+10.	问题：错误信息：INFO  [alembic.env] No changes in schema detected.
+原因：命令python manage.py db migrate -m "initial migration"中的“-m”后面的“”中的名字不能是之前已有的名字。
+11.	小样（thumbnail），是美工用来具体表现布局方式的大致效果图，很小（大约为3×4英寸），省略了细节，比较粗糙，是最基本的东西。直线或水波纹表示正文的位置，方框表示图形的位置。然后，中选的小样再进一步发展。(CSS类)
+12.	<br>:换行
+在 HTML 中，<br> 标签没有结束标签。
+在 XHTML 中，<br> 标签必须被正确地关闭，比如这样：<br />。
+13. python staticmethod 返回函数的静态方法。
+该方法不强制要求传递参数，如下声明一个静态方法：
+class C(object):
+   		staticmethod
+    	def f(arg1, arg2, ...):
+        ...
+以上实例声明了静态方法 f，类可以不用实例化就可以调用该方法 C.f()，当然也可以实例化后调用 C().f()。
+13.	在数据库模型中添加了Post模型后在shell中使用Post.query.all()时，出现下列错误信息：
+Post.query.all()
+Traceback (most recent call last):
+  File "<console>", line 1, in <module>
+NameError: name 'Post' is not defined
+解决：说明shell环境中没有导入Post这个模型，需要导入，或者在make_context中加入刚刚模型中添加模型Post，如下：
+def make_shell_context():
+    return dict(app=app,db=db,User=User,Role=Role,Post=Post)
+manager.add_command("shell",Shell(make_context=make_shell_context))
+14.	使用环境变量要先在config.py中定义
+15.	问题：对于首页无法显示POST表单问题
+原因分析：分析有关代码
+<div>
+    {% if current_user.can(Permission.WRITE) %}
+    {{ wtf.quick_form(form) }}
+    {% endif %}
+</div>	
+得出：可能是用户权限验证不通过，去看User模型中的验证方法。
+    def can(self, perm):
+        return self.role is not None and self.role.has_permission(perm)
+得出：两种可能：
+（1）用户注册时可能没有分配角色去看，看过代码后没问题，用户注册时赋予了角色
+def __init__(self, **kwargs):
+        super(User, self).__init__(**kwargs)
+        if self.role is None:
+            if self.email == current_app.config['FLASKY_ADMIN']:
+                self.role = Role.query.filter_by(name='Administrator').first()
+            if self.role is None:
+                self.role = Role.query.filter_by(default=True).first()
+        if self.email is not None and self.avatar_hash is None:
+            self.avatar_hash = self.gravatar_hash()
+（2）可能数据库中没有对应的角色，在shell环境下调用Role中的insert_roles方法自动添加数据库中没有的角色。
+解决：数据库中没有对应的角色。
+16.问题： Method Not Allowed
+	The method is not allowed for the requested URL.
+	错误码为405
+	原因：指定资源不支持请求使用的方法
+	解决：在对应的视图函数中加入对应的请求方法
+17.错误提示：IOError: [Errno 32] Broken pipe
